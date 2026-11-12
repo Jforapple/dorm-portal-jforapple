@@ -47,4 +47,12 @@ class EventController extends Controller
 
         return redirect()->route('events.index')->with('status', 'Worship event created.');
     }
+
+    /**
+     * Display the details of a worship event.
+     */
+    public function show(Event $event): View
+    {
+        return view('events.show', ['event' => $event]);
+    }
 }
