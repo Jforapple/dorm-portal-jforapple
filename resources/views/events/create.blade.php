@@ -69,7 +69,7 @@
                     >
                         <option value="">Choose a dorm</option>
 
-                        @foreach (['Eve Hall', 'Esther Hall', 'Ruth Hall', 'Elijah Hall', 'Solomon Hall', 'Sarah Hall'] as $dorm)
+                        @foreach (config('dorms') as $dorm)
                             <option value="{{ $dorm }}" @selected(old('dorm') === $dorm)>
                                 {{ $dorm }}
                             </option>
