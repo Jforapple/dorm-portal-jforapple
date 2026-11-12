@@ -129,3 +129,14 @@ it('requires event details', function () {
         ->assertSessionHasErrors(['title', 'dorm', 'date', 'session']);
     $this->assertDatabaseCount('events', 0);
 });
+
+it('rejects unknown dorms', function () {
+    $this->post(route('events.store'), [
+        'title' => 'Worship',
+        'dorm' => 'Unknown Dorm',
+        'date' => '2026-10-20',
+        'session' => 'morning',
+    ])->assertSessionHasErrors('dorm');
+
+    $this->assertDatabaseCount('events', 0);
+});
