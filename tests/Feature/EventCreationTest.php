@@ -90,12 +90,12 @@ it('shows the event form and an empty event list', function () {
 
 it('creates worship events for the allowed sessions', function (string $date, string $session) {
     $this->post(route('events.store'), [
-        'title' => 'Dorm Worship', 'dorm' => 'North Dorm', 'date' => $date, 'session' => $session,
+        'title' => 'Dorm Worship', 'dorm' => 'Elijah Hall', 'date' => $date, 'session' => $session,
     ])->assertRedirect(route('events.index'))->assertSessionHasNoErrors();
 
-    $this->assertDatabaseHas('events', ['dorm' => 'North Dorm', 'session' => $session]);
+    $this->assertDatabaseHas('events', ['dorm' => 'Elijah Hall', 'session' => $session]);
     expect(Event::sole()->date->format('Y-m-d'))->toBe($date);
-    $this->get(route('events.index'))->assertOk()->assertSee('Dorm Worship')->assertSee('North Dorm');
+    $this->get(route('events.index'))->assertOk()->assertSee('Dorm Worship')->assertSee('Elijah Hall');
 })->with([
     ['2026-10-19', 'evening'],
     ['2026-10-20', 'morning'],
@@ -106,7 +106,7 @@ it('creates worship events for the allowed sessions', function (string $date, st
 
 it('rejects worship outside the schedule', function (string $date, string $session, string $field) {
     $this->from(route('events.create'))->post(route('events.store'), [
-        'title' => 'Worship', 'dorm' => 'South Dorm', 'date' => $date, 'session' => $session,
+        'title' => 'Worship', 'dorm' => 'Solomon Hall', 'date' => $date, 'session' => $session,
     ])->assertRedirect(route('events.create'))->assertSessionHasErrors($field);
 
     $this->assertDatabaseCount('events', 0);
