@@ -62,6 +62,12 @@
                             <td class="px-6 py-5">
                                 <div class="flex items-center gap-4">
                                     <a
+                                        class="text-sm font-medium text-green-700 hover:underline"
+                                        href="{{ route('roomcheck.show', $row->id) }}"
+                                    >
+                                        View
+                                    </a>
+                                    <a
                                         class="text-sm font-medium text-blue-700 hover:underline"
                                         href="{{ route('roomcheck.edit', $row->id) }}"
                                     >
