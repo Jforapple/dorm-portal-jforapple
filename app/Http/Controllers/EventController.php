@@ -74,4 +74,14 @@ class EventController extends Controller
 
         return redirect()->route('events.index')->with('status', 'Worship event updated.');
     }
+
+    /**
+     * Delete a worship event.
+     */
+    public function destroy(Event $event): RedirectResponse
+    {
+        $event->delete();
+
+        return redirect()->route('events.index')->with('status', 'Worship event deleted.');
+    }
 }

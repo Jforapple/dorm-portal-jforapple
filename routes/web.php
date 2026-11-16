@@ -34,4 +34,5 @@ Route::resource('events', EventController::class)->only([
     'show',
     'edit',
     'update',
+    'destroy',
 ]);

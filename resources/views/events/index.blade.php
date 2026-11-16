@@ -86,12 +86,30 @@
                                 </span>
                             </td>
                             <td class="px-6 py-5">
-                                <a
-                                    href="{{ route('events.edit', $event) }}"
-                                    class="text-sm font-semibold text-blue-700 hover:underline"
-                                >
-                                    Edit
-                                </a>
+                                <div class="flex items-center gap-4">
+                                    <a
+                                        href="{{ route('events.edit', $event) }}"
+                                        class="text-sm font-semibold text-blue-700 hover:underline"
+                                    >
+                                        Edit
+                                    </a>
+
+                                    <form
+                                        action="{{ route('events.destroy', $event) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Are you sure you want to delete this worship event?')"
+                                    >
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button
+                                            type="submit"
+                                            class="text-sm font-semibold text-red-700 hover:underline"
+                                        >
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
