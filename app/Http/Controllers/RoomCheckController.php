@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RoomCheckRequest;
 use App\Models\RoomCheck;
-use Illuminate\Http\Request;
 
 /**
  * CRUD for room inspections (/roomcheck).
@@ -44,13 +44,9 @@ class RoomCheckController extends Controller
      * Only values from $validated are used — never read $_POST or
      * $request->all() directly, because that skips validation.
      */
-    public function store(Request $request)
+    public function store(RoomCheckRequest $request)
     {
-        $validated = $request->validate([
-            'room_id' => ['required', 'integer'],
-            'student_id' => ['required', 'integer'],
-            'student_name' => ['required', 'string', 'max:255'],
-        ]);
+        $validated = $request->validated();
 
         $roomCheck = new RoomCheck;
         $roomCheck->room_id = $validated['room_id'];
@@ -87,15 +83,11 @@ class RoomCheckController extends Controller
      * The record is looked up before validation so a missing id returns 404
      * rather than validation errors.
      */
-    public function update(Request $request, string $id)
+    public function update(RoomCheckRequest $request, string $id)
     {
         $roomCheck = RoomCheck::findOrFail($id);
 
-        $validated = $request->validate([
-            'room_id' => ['required', 'integer'],
-            'student_id' => ['required', 'integer'],
-            'student_name' => ['required', 'string', 'max:255'],
-        ]);
+        $validated = $request->validated();
 
         $roomCheck->room_id = $validated['room_id'];
         $roomCheck->student_id = $validated['student_id'];
