@@ -46,13 +46,7 @@ class RoomCheckController extends Controller
      */
     public function store(RoomCheckRequest $request)
     {
-        $validated = $request->validated();
-
-        $roomCheck = new RoomCheck;
-        $roomCheck->room_id = $validated['room_id'];
-        $roomCheck->student_id = $validated['student_id'];
-        $roomCheck->student_name = $validated['student_name'];
-        $roomCheck->save();
+        RoomCheck::create($request->validated());
 
         return redirect()->route('roomcheck.index');
     }
@@ -87,12 +81,7 @@ class RoomCheckController extends Controller
     {
         $roomCheck = RoomCheck::findOrFail($id);
 
-        $validated = $request->validated();
-
-        $roomCheck->room_id = $validated['room_id'];
-        $roomCheck->student_id = $validated['student_id'];
-        $roomCheck->student_name = $validated['student_name'];
-        $roomCheck->save();
+        $roomCheck->update($request->validated());
 
         return redirect()->route('roomcheck.index');
     }
