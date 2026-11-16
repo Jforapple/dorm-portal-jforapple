@@ -50,6 +50,7 @@
                         <th class="px-6 py-3">Dorm</th>
                         <th class="px-6 py-3">Date</th>
                         <th class="px-6 py-3">Session</th>
+                        <th class="px-6 py-3">Actions</th>
                     </tr>
                 </thead>
 
@@ -84,10 +85,18 @@
                                     {{ ucfirst($event->session) }}
                                 </span>
                             </td>
+                            <td class="px-6 py-5">
+                                <a
+                                    href="{{ route('events.edit', $event) }}"
+                                    class="text-sm font-semibold text-blue-700 hover:underline"
+                                >
+                                    Edit
+                                </a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-14 text-center">
+                            <td colspan="5" class="px-6 py-14 text-center">
                                 <strong>No worship events yet.</strong>
 
                                 <p class="my-3 text-gray-500">

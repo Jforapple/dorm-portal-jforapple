@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEventRequest;
+use App\Http\Requests\UpdateEventRequest;
 use App\Models\Event;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -54,5 +55,23 @@ class EventController extends Controller
     public function show(Event $event): View
     {
         return view('events.show', ['event' => $event]);
+    }
+
+    /**
+     * Show the form for editing a worship event.
+     */
+    public function edit(Event $event): View
+    {
+        return view('events.edit', ['event' => $event]);
+    }
+
+    /**
+     * Update an existing worship event.
+     */
+    public function update(UpdateEventRequest $request, Event $event): RedirectResponse
+    {
+        $event->update($request->validated());
+
+        return redirect()->route('events.index')->with('status', 'Worship event updated.');
     }
 }
