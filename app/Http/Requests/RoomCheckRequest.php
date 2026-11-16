@@ -2,19 +2,12 @@
 
 namespace App\Http\Requests;
 
-use App\Models\RoomCheck;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RoomCheckRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        $roomCheckId = $this->route('roomcheck');
-
-        if ($roomCheckId !== null) {
-            RoomCheck::findOrFail($roomCheckId);
-        }
-
         return true;
     }
 

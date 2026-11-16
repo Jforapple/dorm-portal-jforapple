@@ -56,19 +56,21 @@ class RoomCheckController extends Controller
      *
      * TODO: Not implemented yet — the route exists but returns an empty page.
      */
-    public function show(string $id)
+    public function show(RoomCheck $roomcheck)
     {
-        //
+        return view('roomchecks.show', [
+            'roomCheck' => $roomcheck,
+        ]);
     }
 
     /**
      * Show the edit form; responds 404 when the id does not exist.
      */
-    public function edit(string $id)
+    public function edit(RoomCheck $roomcheck)
     {
-        $roomCheck = RoomCheck::findOrFail($id);
-
-        return view('roomchecks.edit', compact('roomCheck'));
+        return view('roomchecks.edit', [
+            'roomCheck' => $roomcheck,
+        ]);
     }
 
     /**
@@ -77,11 +79,9 @@ class RoomCheckController extends Controller
      * The record is looked up before validation so a missing id returns 404
      * rather than validation errors.
      */
-    public function update(RoomCheckRequest $request, string $id)
+    public function update(RoomCheckRequest $request, RoomCheck $roomcheck)
     {
-        $roomCheck = RoomCheck::findOrFail($id);
-
-        $roomCheck->update($request->validated());
+        $roomcheck->update($request->validated());
 
         return redirect()->route('roomcheck.index');
     }
@@ -89,10 +89,9 @@ class RoomCheckController extends Controller
     /**
      * Delete one room inspection and return to the list.
      */
-    public function destroy(string $id)
+    public function destroy(RoomCheck $roomcheck)
     {
-        $roomCheck = RoomCheck::findOrFail($id);
-        $roomCheck->delete();
+        $roomcheck->delete();
 
         return redirect()->route('roomcheck.index');
     }
