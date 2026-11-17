@@ -13,16 +13,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 it('deletes only the selected room check and redirects to the list', function () {
-    $records = [];
-
-    foreach ([101, 102] as $roomId) {
-        $roomCheck = new RoomCheck;
-        $roomCheck->room_id = $roomId;
-        $roomCheck->student_id = 42;
-        $roomCheck->student_name = 'Jane Doe';
-        $roomCheck->save();
-        $records[] = $roomCheck;
-    }
+    $records = RoomCheck::factory()->count(2)->sequence(
+        ['room_id' => 101],
+        ['room_id' => 102],
+    )->create([
+        'student_id' => 42,
+        'student_name' => 'Jane Doe',
+    ]);
 
     $this->get(route('roomcheck.index'))
         ->assertOk()
