@@ -25,7 +25,7 @@ class RoomCheckController extends Controller
      */
     public function index()
     {
-        $rooms['rooms'] = RoomCheck::all();
+        $rooms['rooms'] = RoomCheck::paginate(10);
 
         return view('roomchecks.index', $rooms);
     }

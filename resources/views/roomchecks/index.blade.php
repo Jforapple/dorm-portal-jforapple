@@ -114,7 +114,9 @@
 
             </table>
         </div>
-
+        <div class="border-t border-gray-200 px-6 py-4">
+            {{ $rooms->links() }}
+        </div>
     </section>
 
 @endsection
