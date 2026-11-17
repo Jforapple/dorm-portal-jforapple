@@ -1,103 +1,148 @@
-{{--
-    Worship events list, rendered by EventController@index.
 
-    $events is a LengthAwarePaginator, so ->total(), ->hasPages() and
-    ->links() are available. {{ }} escapes output, which protects against XSS.
+@extends('layouts.app')
 
-    TODO: Move the <head>/<style> into a shared layout (Milestone 1, Task 1.3).
-    TODO: Add View/Edit/Delete actions once the events resource is complete.
---}}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Worship Events</title>
-    <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; background: #f5f7fa; color: #243247; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.5; }
-        a { color: #315bc0; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        a:focus-visible { outline: 3px solid #8aaaf5; outline-offset: 4px; }
-        .container { max-width: 1080px; margin: 0 auto; padding: 48px 24px; }
-        .back-link { display: inline-block; margin-bottom: 28px; font-size: 14px; }
-        .page-header { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 28px; }
-        h1 { margin: 0 0 6px; color: #19263a; font-size: clamp(26px, 4vw, 34px); letter-spacing: -1px; }
-        .subtitle { margin: 0; color: #64748b; }
-        .button { display: inline-flex; justify-content: center; align-items: center; padding: 11px 18px; border-radius: 8px; background: #315bc0; color: white; font-size: 14px; font-weight: 600; white-space: nowrap; }
-        .button:hover { background: #254aab; text-decoration: none; }
-        .notice { margin-bottom: 24px; padding: 12px 16px; border: 1px solid #bde2cb; border-radius: 8px; background: #edf9f1; color: #25613c; }
-        .card { overflow: hidden; border: 1px solid #e1e6ed; border-radius: 12px; background: white; box-shadow: 0 3px 12px #19263a04; }
-        .card-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 24px; border-bottom: 1px solid #e9edf2; }
-        h2 { margin: 0; font-size: 16px; font-weight: 600; }
-        .count { color: #64748b; font-size: 13px; }
-        .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { padding: 12px 24px; background: #fafbfd; color: #64748b; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
-        td { padding: 19px 24px; border-top: 1px solid #edf0f4; font-size: 14px; }
-        tbody tr:hover { background: #fcfdff; }
-        .event-title { color: #243247; font-weight: 600; }
-        .weekday { display: block; margin-top: 2px; color: #64748b; font-size: 12px; }
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-        .morning { background: #fff6dc; color: #886015; }
-        .evening { background: #eeedfc; color: #6051a4; }
-        .empty { padding: 56px 24px; text-align: center; }
-        .empty p { margin: 8px 0 20px; color: #64748b; }
-        .pagination { padding: 18px 24px; border-top: 1px solid #e9edf2; }
-        .pagination nav > div:first-child { display: flex; justify-content: space-between; gap: 16px; font-size: 14px; }
-        .pagination nav > div + div { display: none; }
-        .pagination [aria-disabled="true"] { color: #94a3b8; }
-        .schedule { margin: 18px 0 0; color: #64748b; font-size: 13px; }
-        @media (max-width: 600px) {
-            .container { padding: 24px 16px; }
-            .page-header { align-items: flex-start; flex-direction: column; gap: 18px; }
-            .card-header, td, th { padding-left: 16px; padding-right: 16px; }
-            table { min-width: 580px; }
-        }
-    </style>
-</head>
-<body>
-    <main class="container">
-    <a class="back-link" href="{{ route('roomcheck.index') }}">&larr; Room inspections</a>
-    <header class="page-header">
+@section('title', 'Worship Events')
+
+@section('content')
+
+    <a class="mb-7 inline-block text-sm text-blue-700 hover:underline"
+       href="{{ route('roomcheck.index') }}">
+        &larr; Room inspections
+    </a>
+
+    <header class="mb-7 flex flex-wrap items-center justify-between gap-6">
         <div>
-            <h1>Worship Events</h1>
-            <p class="subtitle">A simple overview of worship across your dorms.</p>
+            <h1 class="text-3xl font-bold tracking-tight text-gray-900">
+                Worship Events
+            </h1>
+            <p class="mt-1 text-gray-500">
+                A simple overview of worship across your dorms.
+            </p>
         </div>
-        <a class="button" href="{{ route('events.create') }}">+ Create worship event</a>
+
+        <a class="inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
+           href="{{ route('events.create') }}">
+            + Create worship event
+        </a>
     </header>
-    @if (session('status')) <p class="notice" role="status">{{ session('status') }}</p> @endif
-    <section class="card" aria-labelledby="events-heading">
-    <div class="card-header">
-        <h2 id="events-heading">All events</h2>
-        <span class="count">{{ $events->total() }} {{ $events->total() === 1 ? 'event' : 'events' }}</span>
-    </div>
-    <div class="table-wrapper">
-    <table aria-label="Worship events">
-        <thead><tr><th>Title</th><th>Dorm</th><th>Date</th><th>Session</th></tr></thead>
-        <tbody>
-            @forelse ($events as $event)
-                <tr>
-                    <td class="event-title">{{ $event->title }}</td>
-                    <td>{{ $event->dorm }}</td>
-                    <td>{{ $event->date->format('M j, Y') }}<span class="weekday">{{ $event->date->format('l') }}</span></td>
-                    <td><span class="badge {{ $event->session === 'morning' ? 'morning' : 'evening' }}">{{ ucfirst($event->session) }}</span></td>
-                </tr>
-            @empty
-                <tr><td colspan="4" class="empty">
-                    <strong>No worship events yet.</strong>
-                    <p>Create your first event to start organizing dorm worship.</p>
-                    <a class="button" href="{{ route('events.create') }}">Create worship event</a>
-                </td></tr>
-            @endforelse
-        </tbody>
-    </table>
-    </div>
-    @if ($events->hasPages())
-        <div class="pagination">{{ $events->links('pagination::simple-tailwind') }}</div>
-    @endif
+
+    <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+             aria-labelledby="events-heading">
+
+        <div class="flex items-center justify-between gap-4 border-b border-gray-200 px-6 py-5">
+            <h2 id="events-heading" class="font-semibold">
+                All events
+            </h2>
+
+            <span class="text-sm text-gray-500">
+                {{ $events->total() }}
+                {{ $events->total() === 1 ? 'event' : 'events' }}
+            </span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[580px] border-collapse text-left"
+                   aria-label="Worship events">
+
+                <thead>
+                    <tr class="bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                        <th class="px-6 py-3">Title</th>
+                        <th class="px-6 py-3">Dorm</th>
+                        <th class="px-6 py-3">Date</th>
+                        <th class="px-6 py-3">Session</th>
+                        <th class="px-6 py-3">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @forelse ($events as $event)
+                        <tr class="border-t border-gray-100 hover:bg-gray-50">
+                            <td class="px-6 py-5 font-semibold text-gray-800">
+                                <a
+                                    href="{{ route('events.show', $event) }}"
+                                    class="text-blue-700 hover:underline"
+                                >
+                                    {{ $event->title }}
+                                </a>
+                            </td>
+
+                            <td class="px-6 py-5 text-sm">
+                                {{ $event->dorm }}
+                            </td>
+
+                            <td class="px-6 py-5 text-sm">
+                                {{ $event->date->format('M j, Y') }}
+                                <span class="mt-1 block text-xs text-gray-500">
+                                    {{ $event->date->format('l') }}
+                                </span>
+                            </td>
+
+                            <td class="px-6 py-5">
+                                <span class="inline-block rounded-full px-3 py-1 text-xs font-semibold
+                                    {{ $event->session === 'morning'
+                                        ? 'bg-amber-100 text-amber-800'
+                                        : 'bg-purple-100 text-purple-800' }}">
+                                    {{ ucfirst($event->session) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-5">
+                                <div class="flex items-center gap-4">
+                                    <a
+                                        href="{{ route('events.edit', $event) }}"
+                                        class="text-sm font-semibold text-blue-700 hover:underline"
+                                    >
+                                        Edit
+                                    </a>
+
+                                    <form
+                                        action="{{ route('events.destroy', $event) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Are you sure you want to delete this worship event?')"
+                                    >
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button
+                                            type="submit"
+                                            class="text-sm font-semibold text-red-700 hover:underline"
+                                        >
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-14 text-center">
+                                <strong>No worship events yet.</strong>
+
+                                <p class="my-3 text-gray-500">
+                                    Create your first event to start organizing dorm worship.
+                                </p>
+
+                                <a class="inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
+                                   href="{{ route('events.create') }}">
+                                    Create worship event
+                                </a>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+
+            </table>
+        </div>
+
+        @if ($events->hasPages())
+            <div class="border-t border-gray-200 px-6 py-4">
+                {{ $events->links('pagination::simple-tailwind') }}
+            </div>
+        @endif
+
     </section>
-    <p class="schedule">Monday evenings &middot; Tuesday&ndash;Friday mornings &middot; No weekend check-in</p>
-    </main>
-</body>
-</html>
+
+    <p class="mt-5 text-sm text-gray-500">
+        Monday evenings &middot; Tuesday&ndash;Friday mornings &middot; No weekend check-in
+    </p>
+
+@endsection

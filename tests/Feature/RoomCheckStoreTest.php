@@ -5,9 +5,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 /**
  * Feature tests for creating room inspections. RefreshDatabase gives each test an empty
  * in-memory SQLite database (see phpunit.xml).
- *
- * TODO: Replace the hand-built models with RoomCheck::factory() once the
- *       factory exists (Milestone 1, Task 1.6).
  */
 uses(RefreshDatabase::class);
 

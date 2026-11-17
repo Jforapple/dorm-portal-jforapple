@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\RoomCheckRequest;
 use App\Models\RoomCheck;
-use Illuminate\Http\Request;
 
 /**
  * CRUD for room inspections (/roomcheck).
@@ -25,7 +25,7 @@ class RoomCheckController extends Controller
      */
     public function index()
     {
-        $rooms['rooms'] = RoomCheck::all();
+        $rooms['rooms'] = RoomCheck::paginate(10);
 
         return view('roomchecks.index', $rooms);
     }
@@ -44,19 +44,9 @@ class RoomCheckController extends Controller
      * Only values from $validated are used — never read $_POST or
      * $request->all() directly, because that skips validation.
      */
-    public function store(Request $request)
+    public function store(RoomCheckRequest $request)
     {
-        $validated = $request->validate([
-            'room_id' => ['required', 'integer'],
-            'student_id' => ['required', 'integer'],
-            'student_name' => ['required', 'string', 'max:255'],
-        ]);
-
-        $roomCheck = new RoomCheck;
-        $roomCheck->room_id = $validated['room_id'];
-        $roomCheck->student_id = $validated['student_id'];
-        $roomCheck->student_name = $validated['student_name'];
-        $roomCheck->save();
+        RoomCheck::create($request->validated());
 
         return redirect()->route('roomcheck.index');
     }
@@ -66,19 +56,21 @@ class RoomCheckController extends Controller
      *
      * TODO: Not implemented yet — the route exists but returns an empty page.
      */
-    public function show(string $id)
+    public function show(RoomCheck $roomcheck)
     {
-        //
+        return view('roomchecks.show', [
+            'roomCheck' => $roomcheck,
+        ]);
     }
 
     /**
      * Show the edit form; responds 404 when the id does not exist.
      */
-    public function edit(string $id)
+    public function edit(RoomCheck $roomcheck)
     {
-        $roomCheck = RoomCheck::findOrFail($id);
-
-        return view('roomchecks.edit', compact('roomCheck'));
+        return view('roomchecks.edit', [
+            'roomCheck' => $roomcheck,
+        ]);
     }
 
     /**
@@ -87,20 +79,9 @@ class RoomCheckController extends Controller
      * The record is looked up before validation so a missing id returns 404
      * rather than validation errors.
      */
-    public function update(Request $request, string $id)
+    public function update(RoomCheckRequest $request, RoomCheck $roomcheck)
     {
-        $roomCheck = RoomCheck::findOrFail($id);
-
-        $validated = $request->validate([
-            'room_id' => ['required', 'integer'],
-            'student_id' => ['required', 'integer'],
-            'student_name' => ['required', 'string', 'max:255'],
-        ]);
-
-        $roomCheck->room_id = $validated['room_id'];
-        $roomCheck->student_id = $validated['student_id'];
-        $roomCheck->student_name = $validated['student_name'];
-        $roomCheck->save();
+        $roomcheck->update($request->validated());
 
         return redirect()->route('roomcheck.index');
     }
@@ -108,10 +89,9 @@ class RoomCheckController extends Controller
     /**
      * Delete one room inspection and return to the list.
      */
-    public function destroy(string $id)
+    public function destroy(RoomCheck $roomcheck)
     {
-        $roomCheck = RoomCheck::findOrFail($id);
-        $roomCheck->delete();
+        $roomcheck->delete();
 
         return redirect()->route('roomcheck.index');
     }

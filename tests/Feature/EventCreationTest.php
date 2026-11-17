@@ -90,12 +90,12 @@ it('shows the event form and an empty event list', function () {
 
 it('creates worship events for the allowed sessions', function (string $date, string $session) {
     $this->post(route('events.store'), [
-        'title' => 'Dorm Worship', 'dorm' => 'North Dorm', 'date' => $date, 'session' => $session,
+        'title' => 'Dorm Worship', 'dorm' => 'Elijah Hall', 'date' => $date, 'session' => $session,
     ])->assertRedirect(route('events.index'))->assertSessionHasNoErrors();
 
-    $this->assertDatabaseHas('events', ['dorm' => 'North Dorm', 'session' => $session]);
+    $this->assertDatabaseHas('events', ['dorm' => 'Elijah Hall', 'session' => $session]);
     expect(Event::sole()->date->format('Y-m-d'))->toBe($date);
-    $this->get(route('events.index'))->assertOk()->assertSee('Dorm Worship')->assertSee('North Dorm');
+    $this->get(route('events.index'))->assertOk()->assertSee('Dorm Worship')->assertSee('Elijah Hall');
 })->with([
     ['2026-10-19', 'evening'],
     ['2026-10-20', 'morning'],
@@ -106,7 +106,7 @@ it('creates worship events for the allowed sessions', function (string $date, st
 
 it('rejects worship outside the schedule', function (string $date, string $session, string $field) {
     $this->from(route('events.create'))->post(route('events.store'), [
-        'title' => 'Worship', 'dorm' => 'South Dorm', 'date' => $date, 'session' => $session,
+        'title' => 'Worship', 'dorm' => 'Solomon Hall', 'date' => $date, 'session' => $session,
     ])->assertRedirect(route('events.create'))->assertSessionHasErrors($field);
 
     $this->assertDatabaseCount('events', 0);
@@ -127,5 +127,192 @@ it('rejects worship outside the schedule', function (string $date, string $sessi
 it('requires event details', function () {
     $this->post(route('events.store'), [])
         ->assertSessionHasErrors(['title', 'dorm', 'date', 'session']);
+    $this->assertDatabaseCount('events', 0);
+});
+
+it('rejects unknown dorms', function () {
+    $this->post(route('events.store'), [
+        'title' => 'Worship',
+        'dorm' => 'Unknown Dorm',
+        'date' => '2026-10-20',
+        'session' => 'morning',
+    ])->assertSessionHasErrors('dorm');
+
+    $this->assertDatabaseCount('events', 0);
+});
+
+it('shows an existing worship event', function () {
+    $event = Event::create([
+        'title' => 'Test Worship',
+        'dorm' => 'Elijah Hall',
+        'date' => '2026-10-20',
+        'session' => 'morning',
+    ]);
+
+    $this->get(route('events.show', $event))
+        ->assertOk()
+        ->assertSee('Test Worship')
+        ->assertSee('Elijah Hall')
+        ->assertSee('October 20, 2026')
+        ->assertSee('Tuesday')
+        ->assertSee('Morning');
+});
+
+it('updates an existing worship event', function () {
+    $event = Event::create([
+        'title' => 'Original Worship',
+        'dorm' => 'Elijah Hall',
+        'date' => '2026-10-20',
+        'session' => 'morning',
+    ]);
+
+    $this->put(route('events.update', $event), [
+        'title' => 'Updated Worship',
+        'dorm' => 'Elijah Hall',
+        'date' => '2026-10-21',
+        'session' => 'morning',
+    ])
+        ->assertRedirect(route('events.index'))
+        ->assertSessionHas('status', 'Worship event updated.');
+
+    $this->assertDatabaseHas('events', [
+        'id' => $event->id,
+        'title' => 'Updated Worship',
+        'dorm' => 'Elijah Hall',
+        'date' => '2026-10-21 00:00:00',
+        'session' => 'morning',
+    ]);
+});
+
+it('rejects updates that violate worship scheduling rules', function (string $date, string $session, string $field) {
+    $event = Event::create([
+        'title' => 'Original Worship',
+        'dorm' => 'Elijah Hall',
+        'date' => '2026-10-20',
+        'session' => 'morning',
+    ]);
+
+    $this->put(route('events.update', $event), [
+        'title' => 'Updated Worship',
+        'dorm' => 'Elijah Hall',
+        'date' => $date,
+        'session' => $session,
+    ])
+        ->assertSessionHasErrors($field);
+
+    $this->assertDatabaseHas('events', [
+        'id' => $event->id,
+        'title' => 'Original Worship',
+        'date' => '2026-10-20 00:00:00',
+        'session' => 'morning',
+    ]);
+})->with([
+    'holiday' => ['2026-12-05', 'morning', 'date'],
+    'Saturday' => ['2026-10-24', 'morning', 'date'],
+    'Sunday' => ['2026-10-25', 'morning', 'date'],
+    'Monday morning' => ['2026-10-19', 'morning', 'session'],
+    'Tuesday evening' => ['2026-10-20', 'evening', 'session'],
+]);
+
+it('rejects updating an event to another event existing dorm and date', function () {
+    Event::create([
+        'title' => 'Existing Worship',
+        'dorm' => 'Elijah Hall',
+        'date' => '2026-10-20',
+        'session' => 'morning',
+    ]);
+
+    $event = Event::create([
+        'title' => 'Original Worship',
+        'dorm' => 'Ruth Hall',
+        'date' => '2026-10-21',
+        'session' => 'morning',
+    ]);
+
+    $this->put(route('events.update', $event), [
+        'title' => 'Updated Worship',
+        'dorm' => 'Elijah Hall',
+        'date' => '2026-10-20',
+        'session' => 'morning',
+    ])->assertSessionHasErrors('date');
+
+    $this->assertDatabaseHas('events', [
+        'id' => $event->id,
+        'title' => 'Original Worship',
+        'dorm' => 'Ruth Hall',
+        'date' => '2026-10-21 00:00:00',
+        'session' => 'morning',
+    ]);
+
+    $this->assertDatabaseCount('events', 2);
+});
+
+it('allows saving an event without changing its information', function () {
+    $event = Event::create([
+        'title' => 'Original Worship',
+        'dorm' => 'Elijah Hall',
+        'date' => '2026-10-20',
+        'session' => 'morning',
+    ]);
+
+    $this->put(route('events.update', $event), [
+        'title' => 'Original Worship',
+        'dorm' => 'Elijah Hall',
+        'date' => '2026-10-20',
+        'session' => 'morning',
+    ])
+        ->assertRedirect(route('events.index'))
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('status', 'Worship event updated.');
+
+    $this->assertDatabaseHas('events', [
+        'id' => $event->id,
+        'title' => 'Original Worship',
+        'dorm' => 'Elijah Hall',
+        'date' => '2026-10-20 00:00:00',
+        'session' => 'morning',
+    ]);
+
+    $this->assertDatabaseCount('events', 1);
+});
+
+it('deletes an existing worship event', function () {
+    $event = Event::create([
+        'title' => 'Test Worship',
+        'dorm' => 'Elijah Hall',
+        'date' => '2026-10-20',
+        'session' => 'morning',
+    ]);
+
+    $this->delete(route('events.destroy', $event))
+        ->assertRedirect(route('events.index'))
+        ->assertSessionHas('status', 'Worship event deleted.');
+
+    $this->assertDatabaseMissing('events', [
+        'id' => $event->id,
+    ]);
+
+    $this->assertDatabaseCount('events', 0);
+});
+
+it('returns 404 when an event does not exist', function () {
+    $missingEventId = 999999;
+
+    $this->get(route('events.show', $missingEventId))
+        ->assertNotFound();
+
+    $this->get(route('events.edit', $missingEventId))
+        ->assertNotFound();
+
+    $this->put(route('events.update', $missingEventId), [
+        'title' => 'Updated Worship',
+        'dorm' => 'Elijah Hall',
+        'date' => '2026-10-20',
+        'session' => 'morning',
+    ])->assertNotFound();
+
+    $this->delete(route('events.destroy', $missingEventId))
+        ->assertNotFound();
+
     $this->assertDatabaseCount('events', 0);
 });
