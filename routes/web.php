@@ -12,8 +12,6 @@
  *  - Users             —           UserController       (planned: admin user management)
  *
  * Run `php artisan route:list --except-vendor` to see every registered route.
- *
- * TODO: Protect every module route with the `auth` middleware once login exists.
  */
 
 use App\Http\Controllers\AuthController;
@@ -30,15 +28,9 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::resource('roomcheck', RoomCheckController::class);
+// Protected module routes
+Route::middleware('auth')->group(function () {
+    Route::resource('roomcheck', RoomCheckController::class);
 
-// TODO: Extend to the full resource (show, edit, update, destroy).
-Route::resource('events', EventController::class)->only([
-    'index',
-    'create',
-    'store',
-    'show',
-    'edit',
-    'update',
-    'destroy',
-]);
+    Route::resource('events', EventController::class);
+});
