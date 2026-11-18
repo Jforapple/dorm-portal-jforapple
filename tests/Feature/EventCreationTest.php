@@ -1,11 +1,16 @@
 <?php
 
 use App\Models\Event;
+use App\Models\User;
 use App\Support\ThailandHolidays;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->actingAs(User::factory()->create());
+});
 
 /**
  * Feature tests for creating worship events and every schedule rule in

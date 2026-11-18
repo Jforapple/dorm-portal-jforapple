@@ -1,12 +1,18 @@
+
 <?php
 
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /**
- * Feature tests for creating room inspections. RefreshDatabase gives each test an empty
- * in-memory SQLite database (see phpunit.xml).
+ * Feature tests for creating room inspections.
+ * RefreshDatabase gives each test an empty in-memory SQLite database.
  */
 uses(RefreshDatabase::class);
+
+beforeEach(function () {
+    $this->actingAs(User::factory()->create());
+});
 
 it('stores a valid room check and redirects to the list', function () {
     $data = ['room_id' => 101, 'student_id' => 42, 'student_name' => 'Jane Doe'];
