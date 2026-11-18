@@ -16,9 +16,15 @@
  * TODO: Protect every module route with the `auth` middleware once login exists.
  */
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\RoomCheckController;
 use Illuminate\Support\Facades\Route;
+
+// Authentication routes
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.store');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/', function () {
     return view('welcome');

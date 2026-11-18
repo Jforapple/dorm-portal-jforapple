@@ -24,6 +24,24 @@
             <a href="{{ route('events.index') }}" class="text-gray-700 hover:text-blue-600">
                 Worship Events
             </a>
+            
+            @auth
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+
+                    <button
+                        type="submit"
+                        class="text-gray-700 hover:text-red-600"
+                    >
+                        Logout
+                    </button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="text-gray-700 hover:text-blue-600">
+                    Login
+                </a>
+            @endauth
+
         </nav>
     </header>
 
