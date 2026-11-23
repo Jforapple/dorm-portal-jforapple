@@ -20,10 +20,12 @@
             </p>
         </div>
 
-        <a class="inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
-           href="{{ route('events.create') }}">
-            + Create worship event
-        </a>
+        @can('create', \App\Models\Event::class)
+            <a class="inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
+            href="{{ route('events.create') }}">
+                + Create worship event
+            </a>
+        @endcan
     </header>
 
     <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
@@ -87,28 +89,32 @@
                             </td>
                             <td class="px-6 py-5">
                                 <div class="flex items-center gap-4">
-                                    <a
-                                        href="{{ route('events.edit', $event) }}"
-                                        class="text-sm font-semibold text-blue-700 hover:underline"
-                                    >
-                                        Edit
-                                    </a>
-
-                                    <form
-                                        action="{{ route('events.destroy', $event) }}"
-                                        method="POST"
-                                        onsubmit="return confirm('Are you sure you want to delete this worship event?')"
-                                    >
-                                        @csrf
-                                        @method('DELETE')
-
-                                        <button
-                                            type="submit"
-                                            class="text-sm font-semibold text-red-700 hover:underline"
+                                    @can('update', $event)
+                                        <a
+                                            href="{{ route('events.edit', $event) }}"
+                                            class="text-sm font-semibold text-blue-700 hover:underline"
                                         >
-                                            Delete
-                                        </button>
-                                    </form>
+                                            Edit
+                                        </a>
+                                    @endcan
+
+                                    @can('delete', $event)
+                                        <form
+                                            action="{{ route('events.destroy', $event) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Are you sure you want to delete this worship event?')"
+                                        >
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button
+                                                type="submit"
+                                                class="text-sm font-semibold text-red-700 hover:underline"
+                                            >
+                                                Delete
+                                            </button>
+                                        </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -121,10 +127,12 @@
                                     Create your first event to start organizing dorm worship.
                                 </p>
 
-                                <a class="inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
-                                   href="{{ route('events.create') }}">
-                                    Create worship event
-                                </a>
+                                @can('create', \App\Models\Event::class)
+                                    <a class="inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
+                                    href="{{ route('events.create') }}">
+                                        Create worship event
+                                    </a>
+                                @endcan
                             </td>
                         </tr>
                     @endforelse

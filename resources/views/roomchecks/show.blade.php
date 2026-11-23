@@ -47,12 +47,14 @@
         </dl>
 
         <div class="mt-8 flex flex-wrap gap-4">
-            <a
-                class="inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
-                href="{{ route('roomcheck.edit', $roomCheck->id) }}"
-            >
-                Edit inspection
-            </a>
+            @can('update', $roomCheck)
+                <a
+                    class="inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
+                    href="{{ route('roomcheck.edit', $roomCheck->id) }}"
+                >
+                    Edit inspection
+                </a>
+            @endcan
 
             <a
                 class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"

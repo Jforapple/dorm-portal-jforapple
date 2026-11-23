@@ -16,12 +16,14 @@
             </p>
         </div>
 
-        <a
-            class="inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
-            href="{{ route('roomcheck.create') }}"
-        >
-            + Add inspection
-        </a>
+        @can('create', \App\Models\RoomCheck::class)
+            <a
+                class="inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
+                href="{{ route('roomcheck.create') }}"
+            >
+                + Add inspection
+            </a>
+        @endcan
     </header>
 
     <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
@@ -67,28 +69,32 @@
                                     >
                                         View
                                     </a>
-                                    <a
-                                        class="text-sm font-medium text-blue-700 hover:underline"
-                                        href="{{ route('roomcheck.edit', $row->id) }}"
-                                    >
-                                        Edit
-                                    </a>
-
-                                    <form
-                                        action="{{ route('roomcheck.destroy', $row->id) }}"
-                                        method="POST"
-                                        onsubmit="return confirm('Delete this room inspection?');"
-                                    >
-                                        @csrf
-                                        @method('DELETE')
-
-                                        <button
-                                            class="text-sm font-medium text-red-700 hover:underline"
-                                            type="submit"
+                                    @can('update', $row)
+                                        <a
+                                            class="text-sm font-medium text-blue-700 hover:underline"
+                                            href="{{ route('roomcheck.edit', $row->id) }}"
                                         >
-                                            Delete
-                                        </button>
-                                    </form>
+                                            Edit
+                                        </a>
+                                    @endcan
+
+                                    @can('delete', $row)
+                                        <form
+                                            action="{{ route('roomcheck.destroy', $row->id) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Delete this room inspection?');"
+                                        >
+                                            @csrf
+                                            @method('DELETE')
+
+                                            <button
+                                                class="text-sm font-medium text-red-700 hover:underline"
+                                                type="submit"
+                                            >
+                                                Delete
+                                            </button>
+                                        </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -101,12 +107,14 @@
                                     Add your first room inspection to get started.
                                 </p>
 
-                                <a
-                                    class="inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
-                                    href="{{ route('roomcheck.create') }}"
-                                >
-                                    Add inspection
-                                </a>
+                                @can('create', \App\Models\RoomCheck::class)
+                                    <a
+                                        class="inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
+                                        href="{{ route('roomcheck.create') }}"
+                                    >
+                                        + Add inspection
+                                    </a>
+                                @endcan
                             </td>
                         </tr>
                     @endforelse
