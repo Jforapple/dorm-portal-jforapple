@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Role;
 use App\Models\Event;
 use App\Models\User;
 use App\Support\ThailandHolidays;
@@ -9,7 +10,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->create([
+        'role' => Role::Staff,
+    ]));
 });
 
 /**

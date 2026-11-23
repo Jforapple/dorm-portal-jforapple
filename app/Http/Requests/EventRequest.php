@@ -12,9 +12,7 @@ use Illuminate\Validation\Validator;
 abstract class EventRequest extends FormRequest
 {
     /**
-     * Anyone may create or update events for now.
-     *
-     * TODO: Restrict to staff/admin once roles exist (Milestone 2).
+     * Authorization is handled by EventPolicy in EventController.
      */
     public function authorize(): bool
     {

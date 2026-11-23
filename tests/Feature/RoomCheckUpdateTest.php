@@ -1,6 +1,7 @@
 
 <?php
 
+use App\Enums\Role;
 use App\Models\RoomCheck;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -12,7 +13,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $this->actingAs(User::factory()->create());
+    $this->actingAs(User::factory()->create([
+        'role' => Role::Staff,
+    ]));
 });
 
 function existingRoomCheck(): RoomCheck
