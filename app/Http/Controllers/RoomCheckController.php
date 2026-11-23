@@ -4,27 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\RoomCheckRequest;
 use App\Models\RoomCheck;
+use Illuminate\Support\Facades\Gate;
 
 /**
  * CRUD for room inspections (/roomcheck).
- *
- * This is the oldest module and is intentionally written the "long way"
- * (inline validation, manual property assignment, string ids) so you can
- * compare it with EventController and refactor it.
- *
- * TODO: Move validation into a FormRequest (php artisan make:request RoomCheckRequest).
- * TODO: Use route model binding (show(RoomCheck $roomcheck)) instead of findOrFail().
- * TODO: Add return types, implement show(), and paginate index().
  */
 class RoomCheckController extends Controller
 {
     /**
-     * List every room inspection.
-     *
-     * TODO: RoomCheck::all() loads the whole table — paginate instead.
+     * List room inspections with pagination.
      */
     public function index()
     {
+        Gate::authorize('viewAny', RoomCheck::class);
+
         $rooms['rooms'] = RoomCheck::paginate(10);
 
         return view('roomchecks.index', $rooms);
@@ -35,6 +28,8 @@ class RoomCheckController extends Controller
      */
     public function create()
     {
+        Gate::authorize('create', RoomCheck::class);
+
         return view('roomchecks.create');
     }
 
@@ -46,6 +41,8 @@ class RoomCheckController extends Controller
      */
     public function store(RoomCheckRequest $request)
     {
+        Gate::authorize('create', RoomCheck::class);
+
         RoomCheck::create($request->validated());
 
         return redirect()->route('roomcheck.index');
@@ -53,11 +50,11 @@ class RoomCheckController extends Controller
 
     /**
      * Display a single room inspection.
-     *
-     * TODO: Not implemented yet — the route exists but returns an empty page.
      */
     public function show(RoomCheck $roomcheck)
     {
+        Gate::authorize('view', $roomcheck);
+
         return view('roomchecks.show', [
             'roomCheck' => $roomcheck,
         ]);
@@ -68,6 +65,8 @@ class RoomCheckController extends Controller
      */
     public function edit(RoomCheck $roomcheck)
     {
+        Gate::authorize('update', $roomcheck);
+
         return view('roomchecks.edit', [
             'roomCheck' => $roomcheck,
         ]);
@@ -81,6 +80,8 @@ class RoomCheckController extends Controller
      */
     public function update(RoomCheckRequest $request, RoomCheck $roomcheck)
     {
+        Gate::authorize('update', $roomcheck);
+
         $roomcheck->update($request->validated());
 
         return redirect()->route('roomcheck.index');
@@ -91,6 +92,8 @@ class RoomCheckController extends Controller
      */
     public function destroy(RoomCheck $roomcheck)
     {
+        Gate::authorize('delete', $roomcheck);
+
         $roomcheck->delete();
 
         return redirect()->route('roomcheck.index');
