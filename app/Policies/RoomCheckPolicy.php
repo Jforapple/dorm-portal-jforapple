@@ -15,17 +15,22 @@ class RoomCheckPolicy
 
     public function view(User $user, RoomCheck $roomCheck): bool
     {
-        return true;
+        if ($this->canManage($user)) {
+            return true;
+        }
+
+        return $user->role === Role::Student
+            && $user->room_id === $roomCheck->room_id;
     }
 
     public function create(User $user): bool
     {
-        return $this->canManage($user);
+        return $user->role === Role::Staff;
     }
 
     public function update(User $user, RoomCheck $roomCheck): bool
     {
-        return $this->canManage($user);
+        return $user->role === Role::Staff;
     }
 
     public function delete(User $user, RoomCheck $roomCheck): bool
