@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\Role;
 use App\Http\Requests\RoomCheckRequest;
 use App\Models\Room;
 use App\Models\RoomCheck;
@@ -20,8 +21,19 @@ class RoomCheckController extends Controller
     {
         Gate::authorize('viewAny', RoomCheck::class);
 
-        $rooms = RoomCheck::with(['room.dorm', 'student'])
-            ->paginate(10);
+        $user = auth()->user();
+
+        $query = RoomCheck::with([
+            'room.dorm',
+            'student',
+            'inspector',
+        ]);
+
+        if ($user->role === Role::Student) {
+            $query->where('room_id', $user->room_id);
+        }
+
+        $rooms = $query->paginate(10);
 
         return view('roomchecks.index', compact('rooms'));
     }
@@ -51,7 +63,10 @@ class RoomCheckController extends Controller
     {
         Gate::authorize('create', RoomCheck::class);
 
-        RoomCheck::create($request->validated());
+        RoomCheck::create([
+            ...$request->validated(),
+            'inspector_id' => $request->user()->id,
+        ]);
 
         return redirect()->route('roomcheck.index');
     }
@@ -97,7 +112,10 @@ class RoomCheckController extends Controller
     {
         Gate::authorize('update', $roomcheck);
 
-        $roomcheck->update($request->validated());
+        $roomcheck->update([
+            ...$request->validated(),
+            'inspector_id' => $request->user()->id,
+        ]);
 
         return redirect()->route('roomcheck.index');
     }

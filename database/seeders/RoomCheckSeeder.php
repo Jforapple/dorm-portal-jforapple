@@ -11,12 +11,14 @@ use RuntimeException;
 
 class RoomCheckSeeder extends Seeder
 {
-    /**
-     * Run the seeder.
-     */
     public function run(): void
     {
         $remainingInspections = 100;
+
+        $inspector = User::factory()->create([
+            'role' => Role::Staff,
+            'room_id' => null,
+        ]);
 
         $rooms = Room::withCount('users')->get();
 
@@ -44,6 +46,7 @@ class RoomCheckSeeder extends Seeder
                 RoomCheck::factory()->create([
                     'room_id' => $room->id,
                     'student_id' => $student->id,
+                    'inspector_id' => $inspector->id,
                 ]);
             }
 

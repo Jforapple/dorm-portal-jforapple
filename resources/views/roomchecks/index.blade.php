@@ -4,7 +4,6 @@
 @section('title', 'Room Inspections')
 
 @section('content')
-
     <header class="mb-7 flex flex-wrap items-center justify-between gap-6">
         <div>
             <h1 class="text-3xl font-bold tracking-tight text-gray-900">
@@ -27,21 +26,18 @@
     </header>
 
     <section class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-
         <div class="border-b border-gray-200 px-6 py-5">
-            <h2 class="font-semibold">
-                All room inspections
-            </h2>
+            <h2 class="font-semibold">Room inspections</h2>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full min-w-[580px] border-collapse text-left">
-
+            <table class="w-full min-w-[760px] border-collapse text-left">
                 <thead>
                     <tr class="bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-500">
                         <th class="px-6 py-3">Room</th>
                         <th class="px-6 py-3">Student</th>
-                        <th class="px-6 py-3">Student ID</th>
+                        <th class="px-6 py-3">Inspection Date</th>
+                        <th class="px-6 py-3">Score</th>
                         <th class="px-6 py-3">Actions</th>
                     </tr>
                 </thead>
@@ -58,7 +54,11 @@
                             </td>
 
                             <td class="px-6 py-5">
-                                {{ $row->student_id }}
+                                {{ $row->inspection_date?->format('d M Y') ?? 'Not recorded' }}
+                            </td>
+
+                            <td class="px-6 py-5">
+                                {{ $row->score !== null ? $row->score . '/100' : 'Not recorded' }}
                             </td>
 
                             <td class="px-6 py-5">
@@ -101,7 +101,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-14 text-center">
+                            <td colspan="5" class="px-6 py-14 text-center">
                                 <strong>No room inspections yet.</strong>
 
                                 <p class="my-3 text-gray-500">
@@ -120,14 +120,11 @@
                         </tr>
                     @endforelse
                 </tbody>
-
             </table>
         </div>
 
         <div class="border-t border-gray-200 px-6 py-4">
             {{ $rooms->links() }}
         </div>
-
     </section>
-
 @endsection
