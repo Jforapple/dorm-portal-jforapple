@@ -58,26 +58,29 @@
                 </div>
 
                 <div class="sm:col-span-2">
-                    <label for="dorm" class="mb-2 block text-sm font-semibold">
+                    <label for="dorm_id" class="mb-2 block text-sm font-semibold">
                         Dorm name
                     </label>
 
                     <select
                         class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                        id="dorm"
-                        name="dorm"
+                        id="dorm_id"
+                        name="dorm_id"
                         required
                     >
                         <option value="">Choose a dorm</option>
 
-                        @foreach (config('dorms') as $dorm)
-                            <option value="{{ $dorm }}" @selected(old('dorm', $event->dorm) === $dorm)>
-                                {{ $dorm }}
+                        @foreach ($dorms as $dorm)
+                            <option
+                                value="{{ $dorm->id }}"
+                                @selected(old('dorm_id', $event->dorm_id) == $dorm->id)
+                            >
+                                {{ $dorm->name }}
                             </option>
                         @endforeach
                     </select>
 
-                    @error('dorm')
+                    @error('dorm_id')
                         <p class="mt-1.5 text-sm text-red-700" role="alert">
                             {{ $message }}
                         </p>

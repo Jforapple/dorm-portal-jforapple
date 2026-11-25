@@ -4,29 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
+use App\Models\Dorm;
 use App\Models\Event;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 
-/**
- * Manages dorm worship events (one session per dorm per weekday).
- *
- * Scheduling rules are handled by the event Form Requests.
- */
 class EventController extends Controller
 {
     /**
-     * List events newest first, grouped by dorm within a day, 20 per page.
+     * List events newest first, grouped by dorm within a day.
      */
     public function index(): View
     {
         Gate::authorize('viewAny', Event::class);
 
         return view('events.index', [
-            'events' => Event::query()
+            'events' => Event::with('dorm')
                 ->orderByDesc('date')
-                ->orderBy('dorm')
+                ->orderBy('dorm_id')
                 ->paginate(20),
         ]);
     }
@@ -38,11 +34,13 @@ class EventController extends Controller
     {
         Gate::authorize('create', Event::class);
 
-        return view('events.create');
+        return view('events.create', [
+            'dorms' => Dorm::orderBy('name')->get(),
+        ]);
     }
 
     /**
-     * Save a validated event and return to the list with a flash message.
+     * Save a validated event.
      */
     public function store(StoreEventRequest $request): RedirectResponse
     {
@@ -62,6 +60,8 @@ class EventController extends Controller
     {
         Gate::authorize('view', $event);
 
+        $event->load('dorm');
+
         return view('events.show', ['event' => $event]);
     }
 
@@ -72,7 +72,10 @@ class EventController extends Controller
     {
         Gate::authorize('update', $event);
 
-        return view('events.edit', ['event' => $event]);
+        return view('events.edit', [
+            'event' => $event,
+            'dorms' => Dorm::orderBy('name')->get(),
+        ]);
     }
 
     /**

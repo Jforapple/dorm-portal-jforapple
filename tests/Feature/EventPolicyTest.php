@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Role;
+use App\Models\Dorm;
 use App\Models\Event;
 use App\Models\User;
 use App\Policies\EventPolicy;
@@ -11,9 +12,13 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->policy = new EventPolicy;
 
+    $this->dorm = Dorm::firstOrCreate([
+        'name' => 'Elijah Hall',
+    ]);
+
     $this->event = Event::create([
         'title' => 'Dorm Worship',
-        'dorm' => 'Elijah Hall',
+        'dorm_id' => $this->dorm->id,
         'date' => '2026-11-19',
         'session' => 'morning',
     ]);
@@ -88,7 +93,7 @@ test('student cannot access event management actions', function () {
     $this->actingAs($user)
         ->post(route('events.store'), [
             'title' => 'Another Worship Event',
-            'dorm' => 'Esther Hall',
+            'dorm_id' => $this->dorm->id,
             'date' => '2026-11-20',
             'session' => 'morning',
         ])
@@ -97,7 +102,7 @@ test('student cannot access event management actions', function () {
     $this->actingAs($user)
         ->put(route('events.update', $this->event), [
             'title' => 'Updated Worship Event',
-            'dorm' => 'Esther Hall',
+            'dorm_id' => $this->dorm->id,
             'date' => '2026-11-20',
             'session' => 'morning',
         ])

@@ -69,7 +69,7 @@
                             </td>
 
                             <td class="px-6 py-5 text-sm">
-                                {{ $event->dorm }}
+                                {{ $event->dorm->name }}
                             </td>
 
                             <td class="px-6 py-5 text-sm">
