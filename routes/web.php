@@ -13,7 +13,6 @@
  *
  * Run `php artisan route:list --except-vendor` to see every registered route.
  *
- * TODO: Add a "/" route for the home page (resources/views/welcome.blade.php) — tests/Feature/ExampleTest.php expects it.
  * TODO: Protect every module route with the `auth` middleware once login exists.
  */
 
@@ -21,7 +20,19 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\RoomCheckController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
+
 Route::resource('roomcheck', RoomCheckController::class);
 
 // TODO: Extend to the full resource (show, edit, update, destroy).
-Route::resource('events', EventController::class)->only(['index', 'create', 'store']);
+Route::resource('events', EventController::class)->only([
+    'index',
+    'create',
+    'store',
+    'show',
+    'edit',
+    'update',
+    'destroy',
+]);

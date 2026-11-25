@@ -11,3 +11,11 @@ test('the application returns a successful response', function () {
 
     $response->assertStatus(200);
 });
+
+test('the home page links to every live module', function () {
+    $response = $this->get('/');
+
+    $response->assertOk()
+        ->assertSee(route('roomcheck.index'))
+        ->assertSee(route('events.index'));
+});
