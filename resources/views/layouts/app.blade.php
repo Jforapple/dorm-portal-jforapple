@@ -24,6 +24,34 @@
             <a href="{{ route('events.index') }}" class="text-gray-700 hover:text-blue-600">
                 Worship Events
             </a>
+            
+            @auth
+                <a href="{{ route('profile.edit') }}" class="text-gray-700 hover:text-blue-600">
+                    My Profile
+                </a>
+                
+                @if (auth()->user()->role === \App\Enums\Role::Admin)
+                    <a href="{{ route('users.index') }}" class="text-gray-700 hover:text-blue-600">
+                        Manage Users
+                    </a>
+                @endif
+                
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+
+                    <button
+                        type="submit"
+                        class="text-gray-700 hover:text-red-600"
+                    >
+                        Logout
+                    </button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="text-gray-700 hover:text-blue-600">
+                    Login
+                </a>
+            @endauth
+
         </nav>
     </header>
 

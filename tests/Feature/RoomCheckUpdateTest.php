@@ -1,24 +1,26 @@
 <?php
 
+use App\Enums\Role;
+use App\Models\Room;
 use App\Models\RoomCheck;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /**
- * Feature tests for editing room inspections. RefreshDatabase gives each test an empty
- * in-memory SQLite database (see phpunit.xml).
- *
- * TODO: Replace the hand-built models with RoomCheck::factory() once the
- *       factory exists (Milestone 1, Task 1.6).
+ * Feature tests for editing room inspections.
+ * RefreshDatabase gives each test an empty in-memory SQLite database.
  */
 uses(RefreshDatabase::class);
 
+beforeEach(function () {
+    $this->actingAs(User::factory()->create([
+        'role' => Role::Staff,
+    ]));
+});
+
 function existingRoomCheck(): RoomCheck
 {
-    return RoomCheck::factory()->create([
-        'room_id' => 101,
-        'student_id' => 42,
-        'student_name' => 'Jane Doe',
-    ]);
+    return RoomCheck::factory()->create();
 }
 
 it('shows an edit form with the current values', function () {
@@ -26,23 +28,42 @@ it('shows an edit form with the current values', function () {
 
     $this->get(route('roomcheck.edit', $roomCheck->id))
         ->assertOk()
-        ->assertSee('value="101"', false)
-        ->assertSee('value="42"', false)
-        ->assertSee('value="Jane Doe"', false)
+        ->assertSee('value="'.$roomCheck->room_id.'"', false)
+        ->assertSee('value="'.$roomCheck->student_id.'"', false)
+        ->assertSee($roomCheck->student->name)
         ->assertSee(route('roomcheck.update', $roomCheck->id), false);
 });
 
 it('updates the selected room check', function () {
     $roomCheck = existingRoomCheck();
     $otherRoomCheck = existingRoomCheck();
-    $data = ['room_id' => 202, 'student_id' => 43, 'student_name' => 'John Doe'];
+
+    $newRoom = Room::factory()->create();
+
+    $newStudent = User::factory()->create([
+        'role' => Role::Student,
+        'room_id' => $newRoom->id,
+    ]);
+
+    $data = [
+        'room_id' => $newRoom->id,
+        'student_id' => $newStudent->id,
+    ];
 
     $this->put(route('roomcheck.update', $roomCheck->id), $data)
         ->assertSessionHasNoErrors()
         ->assertRedirect(route('roomcheck.index'));
 
-    $this->assertDatabaseHas('room_checks', ['id' => $roomCheck->id, ...$data]);
-    expect($otherRoomCheck->fresh()->student_name)->toBe('Jane Doe');
+    $this->assertDatabaseHas('room_checks', [
+        'id' => $roomCheck->id,
+        ...$data,
+    ]);
+
+    $this->assertDatabaseHas('room_checks', [
+        'id' => $otherRoomCheck->id,
+        'room_id' => $otherRoomCheck->room_id,
+        'student_id' => $otherRoomCheck->student_id,
+    ]);
 });
 
 it('rejects invalid updates and preserves the existing record', function () {
@@ -52,16 +73,14 @@ it('rejects invalid updates and preserves the existing record', function () {
         ->put(route('roomcheck.update', $roomCheck->id), [
             'room_id' => 'invalid',
             'student_id' => '',
-            'student_name' => str_repeat('a', 256),
         ])
         ->assertRedirect(route('roomcheck.edit', $roomCheck->id))
-        ->assertSessionHasErrors(['room_id', 'student_id', 'student_name']);
+        ->assertSessionHasErrors(['room_id', 'student_id']);
 
     $this->assertDatabaseHas('room_checks', [
         'id' => $roomCheck->id,
-        'room_id' => 101,
-        'student_id' => 42,
-        'student_name' => 'Jane Doe',
+        'room_id' => $roomCheck->room_id,
+        'student_id' => $roomCheck->student_id,
     ]);
 });
 

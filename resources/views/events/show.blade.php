@@ -22,7 +22,7 @@
 
             <div>
                 <dt class="text-sm font-medium text-gray-500">Dorm</dt>
-                <dd class="mt-1 text-gray-900">{{ $event->dorm }}</dd>
+                <dd class="mt-1 text-gray-900">{{ $event->dorm->name }}</dd>
             </div>
 
             <div>

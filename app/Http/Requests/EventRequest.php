@@ -12,9 +12,7 @@ use Illuminate\Validation\Validator;
 abstract class EventRequest extends FormRequest
 {
     /**
-     * Anyone may create or update events for now.
-     *
-     * TODO: Restrict to staff/admin once roles exist (Milestone 2).
+     * Authorization is handled by EventPolicy in EventController.
      */
     public function authorize(): bool
     {
@@ -30,7 +28,7 @@ abstract class EventRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'dorm' => ['required', 'string', 'max:255', Rule::in(config('dorms'))],
+            'dorm_id' => ['required', 'integer', Rule::exists('dorms', 'id')],
             'date' => ['required', 'date_format:Y-m-d'],
             'session' => ['required', Rule::in(['morning', 'evening'])],
         ];
@@ -45,7 +43,11 @@ abstract class EventRequest extends FormRequest
     {
         return [function (Validator $validator) {
             // Skip schedule checks when the basic date/session rules failed.
-            if ($validator->errors()->has('date') || $validator->errors()->has('session')) {
+            if (
+                $validator->errors()->has('date')
+                || $validator->errors()->has('session')
+                || $validator->errors()->has('dorm_id')
+            ) {
                 return;
             }
 
@@ -72,7 +74,7 @@ abstract class EventRequest extends FormRequest
             $event = $this->route('event');
 
             $query = Event::query()
-                ->where('dorm', $this->input('dorm'))
+                ->where('dorm_id', $this->input('dorm_id'))
                 ->whereDate('date', $this->input('date'));
 
             if ($event instanceof Event) {

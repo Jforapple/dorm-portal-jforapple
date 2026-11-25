@@ -3,24 +3,22 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * A planned worship session for one dorm on one date.
- *
- * Columns: title, dorm (free-text name), date, session ('morning'|'evening').
- *
- * TODO: Replace the `dorm` string with a dorm_id foreign key and a
- *       belongsTo(Dorm::class) relationship (Milestone 2, Task 2.3).
- * TODO: Add hasMany(Attendance::class) for worship check-in (Milestone 3).
- */
 class Event extends Model
 {
-    protected $fillable = ['title', 'dorm', 'date', 'session'];
+    protected $fillable = ['title', 'dorm_id', 'date', 'session'];
 
     /**
-     * Cast `date` to a Carbon instance so views can call ->format().
-     *
-     * @return array<string, string>
+     * Get the dorm that owns the worship event.
+     */
+    public function dorm(): BelongsTo
+    {
+        return $this->belongsTo(Dorm::class);
+    }
+
+    /**
+     * Cast date to a Carbon instance.
      */
     protected function casts(): array
     {

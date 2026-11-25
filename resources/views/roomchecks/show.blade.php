@@ -18,21 +18,24 @@
     <section class="max-w-2xl rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
 
         <dl class="space-y-5">
+
             <div>
                 <dt class="text-sm font-medium text-gray-500">
-                    Room ID
+                    Dorm
                 </dt>
+
                 <dd class="mt-1 text-lg font-semibold text-gray-900">
-                    {{ $roomCheck->room_id }}
+                    {{ $roomCheck->room->dorm->name }}
                 </dd>
             </div>
 
             <div>
                 <dt class="text-sm font-medium text-gray-500">
-                    Student ID
+                    Room
                 </dt>
+
                 <dd class="mt-1 text-lg font-semibold text-gray-900">
-                    {{ $roomCheck->student_id }}
+                    {{ $roomCheck->room->number }}
                 </dd>
             </div>
 
@@ -40,19 +43,33 @@
                 <dt class="text-sm font-medium text-gray-500">
                     Student Name
                 </dt>
+
                 <dd class="mt-1 text-lg font-semibold text-gray-900">
-                    {{ $roomCheck->student_name }}
+                    {{ $roomCheck->student->name }}
                 </dd>
             </div>
+
+            <div>
+                <dt class="text-sm font-medium text-gray-500">
+                    Student ID
+                </dt>
+
+                <dd class="mt-1 text-lg font-semibold text-gray-900">
+                    {{ $roomCheck->student_id }}
+                </dd>
+            </div>
+
         </dl>
 
         <div class="mt-8 flex flex-wrap gap-4">
-            <a
-                class="inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
-                href="{{ route('roomcheck.edit', $roomCheck->id) }}"
-            >
-                Edit inspection
-            </a>
+            @can('update', $roomCheck)
+                <a
+                    class="inline-flex items-center justify-center rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-800"
+                    href="{{ route('roomcheck.edit', $roomCheck->id) }}"
+                >
+                    Edit inspection
+                </a>
+            @endcan
 
             <a
                 class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-5 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"

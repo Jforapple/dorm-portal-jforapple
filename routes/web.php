@@ -12,27 +12,35 @@
  *  - Users             —           UserController       (planned: admin user management)
  *
  * Run `php artisan route:list --except-vendor` to see every registered route.
- *
- * TODO: Protect every module route with the `auth` middleware once login exists.
  */
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoomCheckController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+
+// Authentication routes
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.store');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::resource('roomcheck', RoomCheckController::class);
+// Protected module routes
+Route::middleware('auth')->group(function () {
+    Route::resource('roomcheck', RoomCheckController::class);
 
-// TODO: Extend to the full resource (show, edit, update, destroy).
-Route::resource('events', EventController::class)->only([
-    'index',
-    'create',
-    'store',
-    'show',
-    'edit',
-    'update',
-    'destroy',
-]);
+    Route::resource('events', EventController::class);
+
+    Route::resource('users', UserController::class);
+
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('profile.edit');
+
+    Route::put('/profile', [ProfileController::class, 'update'])
+        ->name('profile.update');
+});

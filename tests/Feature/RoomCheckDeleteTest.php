@@ -1,25 +1,24 @@
 <?php
 
+use App\Enums\Role;
 use App\Models\RoomCheck;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /**
- * Feature tests for deleting room inspections. RefreshDatabase gives each test an empty
- * in-memory SQLite database (see phpunit.xml).
- *
- * TODO: Replace the hand-built models with RoomCheck::factory() once the
- *       factory exists (Milestone 1, Task 1.6).
+ * Feature tests for deleting room inspections.
+ * RefreshDatabase gives each test an empty in-memory SQLite database.
  */
 uses(RefreshDatabase::class);
 
+beforeEach(function () {
+    $this->actingAs(User::factory()->create([
+        'role' => Role::Staff,
+    ]));
+});
+
 it('deletes only the selected room check and redirects to the list', function () {
-    $records = RoomCheck::factory()->count(2)->sequence(
-        ['room_id' => 101],
-        ['room_id' => 102],
-    )->create([
-        'student_id' => 42,
-        'student_name' => 'Jane Doe',
-    ]);
+    $records = RoomCheck::factory()->count(2)->create();
 
     $this->get(route('roomcheck.index'))
         ->assertOk()
