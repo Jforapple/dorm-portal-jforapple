@@ -159,3 +159,85 @@ test('admin cannot delete their own account but can delete another user', functi
         'id' => $anotherUser->id,
     ]);
 });
+
+test('staff and students cannot create, update, or delete users', function () {
+    $managedUser = User::factory()->create();
+
+    foreach ([Role::Staff, Role::Student] as $role) {
+        $user = User::factory()->create([
+            'role' => $role,
+        ]);
+
+        $this->actingAs($user)
+            ->post(route('users.store'), [
+                'name' => 'Unauthorized User',
+                'email' => 'unauthorized@example.com',
+                'password' => 'password123',
+                'password_confirmation' => 'password123',
+                'role' => Role::Student->value,
+                'room_id' => '',
+            ])
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->put(route('users.update', $managedUser), [
+                'name' => 'Updated Name',
+                'email' => $managedUser->email,
+                'role' => Role::Student->value,
+                'room_id' => '',
+            ])
+            ->assertForbidden();
+
+        $this->actingAs($user)
+            ->delete(route('users.destroy', $managedUser))
+            ->assertForbidden();
+    }
+
+    $this->assertDatabaseMissing('users', [
+        'email' => 'unauthorized@example.com',
+    ]);
+
+    $this->assertDatabaseHas('users', [
+        'id' => $managedUser->id,
+    ]);
+});
+
+test('admin cannot move a student into a room that has reached capacity', function () {
+    $admin = User::factory()->create([
+        'role' => Role::Admin,
+    ]);
+
+    $fullRoom = Room::factory()->create([
+        'capacity' => 1,
+    ]);
+
+    $availableRoom = Room::factory()->create([
+        'capacity' => 2,
+    ]);
+
+    User::factory()->create([
+        'role' => Role::Student,
+        'room_id' => $fullRoom->id,
+    ]);
+
+    $student = User::factory()->create([
+        'role' => Role::Student,
+        'room_id' => $availableRoom->id,
+    ]);
+
+    $this->actingAs($admin)
+        ->put(route('users.update', $student), [
+            'name' => $student->name,
+            'email' => $student->email,
+            'role' => Role::Student->value,
+            'room_id' => $fullRoom->id,
+            'password' => '',
+            'password_confirmation' => '',
+        ])
+        ->assertSessionHasErrors('room_id');
+
+    $this->assertDatabaseHas('users', [
+        'id' => $student->id,
+        'room_id' => $availableRoom->id,
+    ]);
+});
