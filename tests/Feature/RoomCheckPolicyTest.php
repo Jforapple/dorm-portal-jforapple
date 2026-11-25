@@ -12,11 +12,7 @@ uses(RefreshDatabase::class);
 beforeEach(function () {
     $this->policy = new RoomCheckPolicy;
 
-    $this->roomCheck = RoomCheck::create([
-        'room_id' => 101,
-        'student_id' => 1,
-        'student_name' => 'Test Student',
-    ]);
+    $this->roomCheck = RoomCheck::factory()->create();
 });
 
 test('admin can view and manage room inspections', function () {
@@ -88,17 +84,15 @@ test('student cannot access room inspection management actions', function () {
 
     $this->actingAs($user)
         ->post(route('roomcheck.store'), [
-            'room_id' => 102,
-            'student_id' => 2,
-            'student_name' => 'Another Student',
+            'room_id' => $this->roomCheck->room_id,
+            'student_id' => $this->roomCheck->student_id,
         ])
         ->assertForbidden();
 
     $this->actingAs($user)
         ->put(route('roomcheck.update', $this->roomCheck), [
-            'room_id' => 102,
-            'student_id' => 2,
-            'student_name' => 'Updated Student',
+            'room_id' => $this->roomCheck->room_id,
+            'student_id' => $this->roomCheck->student_id,
         ])
         ->assertForbidden();
 

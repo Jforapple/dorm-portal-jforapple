@@ -36,22 +36,30 @@
                 </h2>
             </div>
 
-            <div class="grid grid-cols-1 gap-6 p-6 sm:grid-cols-2">
+            <div class="grid grid-cols-1 gap-6 p-6">
 
                 <div>
                     <label for="room_id" class="mb-2 block text-sm font-semibold">
-                        Room ID
+                        Room
                     </label>
 
-                    <input
+                    <select
                         class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                        type="number"
                         id="room_id"
                         name="room_id"
-                        value="{{ old('room_id') }}"
-                        step="1"
                         required
                     >
+                        <option value="">Select a room</option>
+
+                        @foreach ($availableRooms as $room)
+                            <option
+                                value="{{ $room->id }}"
+                                @selected(old('room_id') == $room->id)
+                            >
+                                {{ $room->dorm->name }} - Room {{ $room->number }}
+                            </option>
+                        @endforeach
+                    </select>
 
                     @error('room_id')
                         <p class="mt-1.5 text-sm text-red-700" role="alert">
@@ -62,42 +70,31 @@
 
                 <div>
                     <label for="student_id" class="mb-2 block text-sm font-semibold">
-                        Student ID
+                        Student
                     </label>
 
-                    <input
+                    <select
                         class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                        type="number"
                         id="student_id"
                         name="student_id"
-                        value="{{ old('student_id') }}"
-                        step="1"
                         required
                     >
+                        <option value="">Select a student</option>
+
+                        @foreach ($students as $student)
+                            @if ($student->room_id !== null)
+                                <option
+                                    value="{{ $student->id }}"
+                                    @selected(old('student_id') == $student->id)
+                                >
+                                    {{ $student->name }} (ID: {{ $student->id }})
+                                    - Room {{ $student->room_id }}
+                                </option>
+                            @endif
+                        @endforeach
+                    </select>
 
                     @error('student_id')
-                        <p class="mt-1.5 text-sm text-red-700" role="alert">
-                            {{ $message }}
-                        </p>
-                    @enderror
-                </div>
-
-                <div class="sm:col-span-2">
-                    <label for="student_name" class="mb-2 block text-sm font-semibold">
-                        Student Name
-                    </label>
-
-                    <input
-                        class="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                        type="text"
-                        id="student_name"
-                        name="student_name"
-                        value="{{ old('student_name') }}"
-                        maxlength="255"
-                        required
-                    >
-
-                    @error('student_name')
                         <p class="mt-1.5 text-sm text-red-700" role="alert">
                             {{ $message }}
                         </p>

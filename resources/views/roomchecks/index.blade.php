@@ -39,9 +39,9 @@
 
                 <thead>
                     <tr class="bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-500">
-                        <th class="px-6 py-3">Room ID</th>
+                        <th class="px-6 py-3">Room</th>
+                        <th class="px-6 py-3">Student</th>
                         <th class="px-6 py-3">Student ID</th>
-                        <th class="px-6 py-3">Student Name</th>
                         <th class="px-6 py-3">Actions</th>
                     </tr>
                 </thead>
@@ -50,15 +50,15 @@
                     @forelse ($rooms as $row)
                         <tr class="border-t border-gray-100 hover:bg-gray-50">
                             <td class="px-6 py-5">
-                                {{ $row->room_id }}
+                                {{ $row->room->dorm->name }} - Room {{ $row->room->number }}
+                            </td>
+
+                            <td class="px-6 py-5">
+                                {{ $row->student->name }}
                             </td>
 
                             <td class="px-6 py-5">
                                 {{ $row->student_id }}
-                            </td>
-
-                            <td class="px-6 py-5">
-                                {{ $row->student_name }}
                             </td>
 
                             <td class="px-6 py-5">
@@ -69,6 +69,7 @@
                                     >
                                         View
                                     </a>
+
                                     @can('update', $row)
                                         <a
                                             class="text-sm font-medium text-blue-700 hover:underline"
@@ -122,9 +123,11 @@
 
             </table>
         </div>
+
         <div class="border-t border-gray-200 px-6 py-4">
             {{ $rooms->links() }}
         </div>
+
     </section>
 
 @endsection

@@ -18,13 +18,7 @@ beforeEach(function () {
 });
 
 it('deletes only the selected room check and redirects to the list', function () {
-    $records = RoomCheck::factory()->count(2)->sequence(
-        ['room_id' => 101],
-        ['room_id' => 102],
-    )->create([
-        'student_id' => 42,
-        'student_name' => 'Jane Doe',
-    ]);
+    $records = RoomCheck::factory()->count(2)->create();
 
     $this->get(route('roomcheck.index'))
         ->assertOk()

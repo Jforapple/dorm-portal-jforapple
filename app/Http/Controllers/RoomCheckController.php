@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RoomCheckRequest;
+use App\Models\Room;
 use App\Models\RoomCheck;
+use App\Models\User;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -18,9 +20,10 @@ class RoomCheckController extends Controller
     {
         Gate::authorize('viewAny', RoomCheck::class);
 
-        $rooms['rooms'] = RoomCheck::paginate(10);
+        $rooms = RoomCheck::with(['room.dorm', 'student'])
+            ->paginate(10);
 
-        return view('roomchecks.index', $rooms);
+        return view('roomchecks.index', compact('rooms'));
     }
 
     /**
@@ -30,14 +33,19 @@ class RoomCheckController extends Controller
     {
         Gate::authorize('create', RoomCheck::class);
 
-        return view('roomchecks.create');
+        return view('roomchecks.create', [
+            'availableRooms' => Room::with('dorm')
+                ->orderBy('number')
+                ->get(),
+
+            'students' => User::where('role', 'student')
+                ->orderBy('name')
+                ->get(),
+        ]);
     }
 
     /**
      * Validate and save a new room inspection.
-     *
-     * Only values from $validated are used — never read $_POST or
-     * $request->all() directly, because that skips validation.
      */
     public function store(RoomCheckRequest $request)
     {
@@ -55,13 +63,15 @@ class RoomCheckController extends Controller
     {
         Gate::authorize('view', $roomcheck);
 
+        $roomcheck->load(['room.dorm', 'student']);
+
         return view('roomchecks.show', [
             'roomCheck' => $roomcheck,
         ]);
     }
 
     /**
-     * Show the edit form; responds 404 when the id does not exist.
+     * Show the edit form.
      */
     public function edit(RoomCheck $roomcheck)
     {
@@ -69,14 +79,19 @@ class RoomCheckController extends Controller
 
         return view('roomchecks.edit', [
             'roomCheck' => $roomcheck,
+
+            'availableRooms' => Room::with('dorm')
+                ->orderBy('number')
+                ->get(),
+
+            'students' => User::where('role', 'student')
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
     /**
      * Validate and update an existing room inspection.
-     *
-     * The record is looked up before validation so a missing id returns 404
-     * rather than validation errors.
      */
     public function update(RoomCheckRequest $request, RoomCheck $roomcheck)
     {

@@ -1,7 +1,7 @@
-
 <?php
 
 use App\Enums\Role;
+use App\Models\Room;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -18,7 +18,17 @@ beforeEach(function () {
 });
 
 it('stores a valid room check and redirects to the list', function () {
-    $data = ['room_id' => 101, 'student_id' => 42, 'student_name' => 'Jane Doe'];
+    $room = Room::factory()->create();
+
+    $student = User::factory()->create([
+        'role' => Role::Student,
+        'room_id' => $room->id,
+    ]);
+
+    $data = [
+        'room_id' => $room->id,
+        'student_id' => $student->id,
+    ];
 
     $this->post(route('roomcheck.store'), $data)
         ->assertSessionHasNoErrors()
@@ -32,10 +42,9 @@ it('rejects invalid room check data without saving', function () {
         ->post(route('roomcheck.store'), [
             'room_id' => 'invalid',
             'student_id' => '1.5',
-            'student_name' => str_repeat('a', 256),
         ])
         ->assertRedirect(route('roomcheck.create'))
-        ->assertSessionHasErrors(['room_id', 'student_id', 'student_name']);
+        ->assertSessionHasErrors(['room_id', 'student_id']);
 
     $this->assertDatabaseCount('room_checks', 0);
 });
