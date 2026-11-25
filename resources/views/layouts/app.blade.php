@@ -26,6 +26,12 @@
             </a>
             
             @auth
+                @if (auth()->user()->role === \App\Enums\Role::Student)
+                    <a href="{{ route('attendance.index') }}" class="text-gray-700 hover:text-blue-600">
+                        My Attendance
+                    </a>
+                @endif
+                
                 <a href="{{ route('profile.edit') }}" class="text-gray-700 hover:text-blue-600">
                     My Profile
                 </a>
