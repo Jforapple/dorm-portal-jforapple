@@ -26,6 +26,10 @@
             </a>
             
             @auth
+                <a href="{{ route('profile.edit') }}" class="text-gray-700 hover:text-blue-600">
+                    My Profile
+                </a>
+                
                 @if (auth()->user()->role === \App\Enums\Role::Admin)
                     <a href="{{ route('users.index') }}" class="text-gray-700 hover:text-blue-600">
                         Manage Users
