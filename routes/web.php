@@ -17,6 +17,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\RoomCheckController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Authentication routes
@@ -33,4 +34,6 @@ Route::middleware('auth')->group(function () {
     Route::resource('roomcheck', RoomCheckController::class);
 
     Route::resource('events', EventController::class);
+
+    Route::resource('users', UserController::class);
 });

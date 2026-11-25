@@ -26,6 +26,12 @@
             </a>
             
             @auth
+                @if (auth()->user()->role === \App\Enums\Role::Admin)
+                    <a href="{{ route('users.index') }}" class="text-gray-700 hover:text-blue-600">
+                        Manage Users
+                    </a>
+                @endif
+                
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
 
