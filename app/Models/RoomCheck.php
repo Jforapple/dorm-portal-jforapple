@@ -6,9 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * One room inspection record (table room_checks).
- */
 class RoomCheck extends Model
 {
     use HasFactory;
@@ -16,7 +13,21 @@ class RoomCheck extends Model
     protected $fillable = [
         'room_id',
         'student_id',
+        'inspection_date',
+        'inspector_id',
+        'checklist',
+        'score',
+        'notes',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'inspection_date' => 'date',
+            'checklist' => 'array',
+            'score' => 'integer',
+        ];
+    }
 
     public function room(): BelongsTo
     {
@@ -26,5 +37,10 @@ class RoomCheck extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(User::class, 'student_id');
+    }
+
+    public function inspector(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'inspector_id');
     }
 }

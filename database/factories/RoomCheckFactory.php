@@ -13,19 +13,33 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class RoomCheckFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
             'room_id' => Room::factory(),
+
             'student_id' => User::factory()->state([
                 'role' => Role::Student,
                 'room_id' => null,
             ]),
+
+            'inspection_date' => fake()->dateTimeBetween('-30 days', 'now'),
+
+            'inspector_id' => User::factory()->state([
+                'role' => Role::Staff,
+            ]),
+
+            'checklist' => [
+                'bed' => fake()->randomElement(['pass', 'fail']),
+                'floor' => fake()->randomElement(['pass', 'fail']),
+                'desk' => fake()->randomElement(['pass', 'fail']),
+                'trash' => fake()->randomElement(['pass', 'fail']),
+                'bathroom' => fake()->randomElement(['pass', 'fail']),
+            ],
+
+            'score' => fake()->numberBetween(0, 100),
+
+            'notes' => fake()->optional()->sentence(),
         ];
     }
 

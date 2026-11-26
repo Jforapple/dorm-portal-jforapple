@@ -1,7 +1,7 @@
-
 <?php
 
 use App\Enums\Role;
+use App\Models\Room;
 use App\Models\RoomCheck;
 use App\Models\User;
 use App\Policies\RoomCheckPolicy;
@@ -15,15 +15,15 @@ beforeEach(function () {
     $this->roomCheck = RoomCheck::factory()->create();
 });
 
-test('admin can view and manage room inspections', function () {
+test('admin can view and delete room inspections but cannot create or edit them', function () {
     $user = User::factory()->create([
         'role' => Role::Admin,
     ]);
 
     expect($this->policy->viewAny($user))->toBeTrue()
         ->and($this->policy->view($user, $this->roomCheck))->toBeTrue()
-        ->and($this->policy->create($user))->toBeTrue()
-        ->and($this->policy->update($user, $this->roomCheck))->toBeTrue()
+        ->and($this->policy->create($user))->toBeFalse()
+        ->and($this->policy->update($user, $this->roomCheck))->toBeFalse()
         ->and($this->policy->delete($user, $this->roomCheck))->toBeTrue();
 });
 
@@ -39,9 +39,10 @@ test('staff can view and manage room inspections', function () {
         ->and($this->policy->delete($user, $this->roomCheck))->toBeTrue();
 });
 
-test('student can view room inspections but cannot manage them', function () {
+test('student can view only inspections belonging to their own room', function () {
     $user = User::factory()->create([
         'role' => Role::Student,
+        'room_id' => $this->roomCheck->room_id,
     ]);
 
     expect($this->policy->viewAny($user))->toBeTrue()
@@ -49,11 +50,20 @@ test('student can view room inspections but cannot manage them', function () {
         ->and($this->policy->create($user))->toBeFalse()
         ->and($this->policy->update($user, $this->roomCheck))->toBeFalse()
         ->and($this->policy->delete($user, $this->roomCheck))->toBeFalse();
+
+    $otherRoom = Room::factory()->create();
+
+    $otherRoomCheck = RoomCheck::factory()->create([
+        'room_id' => $otherRoom->id,
+    ]);
+
+    expect($this->policy->view($user, $otherRoomCheck))->toBeFalse();
 });
 
 test('student can view the room inspection list and details without management actions', function () {
     $user = User::factory()->create([
         'role' => Role::Student,
+        'room_id' => $this->roomCheck->room_id,
     ]);
 
     $this->actingAs($user)
@@ -72,6 +82,7 @@ test('student can view the room inspection list and details without management a
 test('student cannot access room inspection management actions', function () {
     $user = User::factory()->create([
         'role' => Role::Student,
+        'room_id' => $this->roomCheck->room_id,
     ]);
 
     $this->actingAs($user)
@@ -83,20 +94,55 @@ test('student cannot access room inspection management actions', function () {
         ->assertForbidden();
 
     $this->actingAs($user)
-        ->post(route('roomcheck.store'), [
-            'room_id' => $this->roomCheck->room_id,
-            'student_id' => $this->roomCheck->student_id,
-        ])
+        ->post(route('roomcheck.store'), [])
         ->assertForbidden();
 
     $this->actingAs($user)
-        ->put(route('roomcheck.update', $this->roomCheck), [
-            'room_id' => $this->roomCheck->room_id,
-            'student_id' => $this->roomCheck->student_id,
-        ])
+        ->put(route('roomcheck.update', $this->roomCheck), [])
         ->assertForbidden();
 
     $this->actingAs($user)
         ->delete(route('roomcheck.destroy', $this->roomCheck))
         ->assertForbidden();
+});
+
+test('student receives forbidden when opening another rooms inspection', function () {
+    $otherRoom = Room::factory()->create();
+
+    $otherRoomCheck = RoomCheck::factory()->create([
+        'room_id' => $otherRoom->id,
+    ]);
+
+    $student = User::factory()->create([
+        'role' => Role::Student,
+        'room_id' => $this->roomCheck->room_id,
+    ]);
+
+    $this->actingAs($student)
+        ->get(route('roomcheck.show', $otherRoomCheck))
+        ->assertForbidden();
+});
+
+test('student sees only inspections belonging to their own room in the inspection list', function () {
+    $ownRoomStudent = User::factory()->create([
+        'role' => Role::Student,
+        'room_id' => $this->roomCheck->room_id,
+    ]);
+
+    $otherRoom = Room::factory()->create();
+
+    $otherRoomCheck = RoomCheck::factory()->create([
+        'room_id' => $otherRoom->id,
+    ]);
+
+    $student = User::factory()->create([
+        'role' => Role::Student,
+        'room_id' => $this->roomCheck->room_id,
+    ]);
+
+    $this->actingAs($student)
+        ->get(route('roomcheck.index'))
+        ->assertOk()
+        ->assertSee($this->roomCheck->student->name)
+        ->assertDontSee($otherRoomCheck->student->name);
 });

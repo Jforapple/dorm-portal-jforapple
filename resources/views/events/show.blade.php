@@ -47,6 +47,17 @@
             </div>
 
         </dl>
+        
+        @if (auth()->user()->role === \App\Enums\Role::Staff)
+            <div class="mt-7 border-t border-gray-200 pt-5">
+                <a
+                    href="{{ route('events.attendance', $event) }}"
+                    class="inline-flex items-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-800"
+                >
+                    Mark Attendance
+                </a>
+            </div>
+        @endif
 
     </div>
 
