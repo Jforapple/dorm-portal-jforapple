@@ -4,12 +4,12 @@
  * Web routes for the Dorm Portal.
  *
  * Module map:
- *  - Room inspections  /roomcheck  RoomCheckController  (full resource, show() still empty)
- *  - Worship events    /events     EventController      (index, create, store only)
- *  - Worship attendance /attendance WorshipController   (student history and staff marking)
- *  - Cleaning duty     —           CleaningController   (planned)
- *  - Visits            —           VisitController      (planned)
- *  - Users             —           UserController       (planned: admin user management)
+ *  - Room inspections   /roomcheck       RoomCheckController
+ *  - Worship events     /events          EventController
+ *  - Worship attendance /attendance      WorshipController
+ *  - Cleaning duty      /cleaning-duties CleaningDutyController
+ *  - Users              /users           UserController
+ *  - Profile            /profile         ProfileController
  *
  * Run `php artisan route:list --except-vendor` to see every registered route.
  */
