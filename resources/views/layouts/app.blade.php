@@ -24,24 +24,28 @@
             <a href="{{ route('events.index') }}" class="text-gray-700 hover:text-blue-600">
                 Worship Events
             </a>
-            
+
             @auth
+                <a href="{{ route('cleaning-duties.index') }}" class="text-gray-700 hover:text-blue-600">
+                    Cleaning Duties
+                </a>
+
                 @if (auth()->user()->role === \App\Enums\Role::Student)
                     <a href="{{ route('attendance.index') }}" class="text-gray-700 hover:text-blue-600">
                         My Attendance
                     </a>
                 @endif
-                
+
                 <a href="{{ route('profile.edit') }}" class="text-gray-700 hover:text-blue-600">
                     My Profile
                 </a>
-                
+
                 @if (auth()->user()->role === \App\Enums\Role::Admin)
                     <a href="{{ route('users.index') }}" class="text-gray-700 hover:text-blue-600">
                         Manage Users
                     </a>
                 @endif
-                
+
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
 

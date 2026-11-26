@@ -15,6 +15,7 @@
  */
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CleaningDutyController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoomCheckController;
@@ -53,4 +54,17 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/events/{event}/attendance', [WorshipController::class, 'store'])
         ->name('events.attendance.store');
+
+    // Cleaning duty routes
+    Route::get('/cleaning-duties', [CleaningDutyController::class, 'index'])
+        ->name('cleaning-duties.index');
+
+    Route::get('/cleaning-duties/create', [CleaningDutyController::class, 'create'])
+        ->name('cleaning-duties.create');
+
+    Route::post('/cleaning-duties', [CleaningDutyController::class, 'store'])
+        ->name('cleaning-duties.store');
+
+    Route::patch('/cleaning-duties/{cleaning_duty}/complete', [CleaningDutyController::class, 'complete'])
+        ->name('cleaning-duties.complete');
 });
