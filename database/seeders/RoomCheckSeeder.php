@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Enums\Role;
 use App\Models\Dorm;
-use App\Models\Room;
 use App\Models\RoomCheck;
 use App\Models\User;
 use Illuminate\Database\Seeder;
